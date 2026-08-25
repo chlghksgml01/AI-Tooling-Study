@@ -17,6 +17,7 @@
         object requestBody = new
         {
             model = "claude-sonnet-4-6",
+            // 한 번의 응답에서 생성할 수 있는 최대 토큰
             max_tokens = 700,
             messages = new[] { new { role = "user", content = prompt } }
         };
@@ -28,7 +29,7 @@
 3. **HTTP 클라이언트 구성**
     - 비동기 네트워크 통신 담당 메서드를 구현
     - 에디터 툴에서는 `HttpClient` 사용 가능 (이 프로젝트가 채택한 방식)
-    - 런타임(모바일/WebGL 등) 빌드에서는 IL2CPP·플랫폼 호환성 때문에 `UnityWebRequest`가 더 권장됨
+    - 런타임(모바일/WebGL 등) 빌드에서는 IL2CPP, 플랫폼 호환성 때문에 `UnityWebRequest`가 더 권장됨
         
         ```csharp
         private static readonly HttpClient Client = CreateClient();
@@ -80,28 +81,10 @@
         ```
         
     - 응답은 스키마 전체를 클래스로 만들 필요 없이 필요한 필드만 뽑아 쓰는 부분 역직렬화도 실무적으로 많이 씀
-        - AI 서버에 요청보냈을 대 돌아오는 JSON 스키마는 구조 복잡하고 큼
+        - AI 서버에 요청보냈을 때 돌아오는 JSON 스키마는 구조 복잡하고 큼
         → 필요한 부분만 역직렬화해서 가져옴
         - 정석적인 방법: 스키마 전체를 클래스로 만드는 방식
 
-### AIBalanceReview
-
-- 너의 코드가 AI를 호출하는 쪽 (클라이언트)
-- Unity Editor 툴 → Claude API(Anthropic Messages API)에 미션 데이터 던짐 → AI가 밸런스 분석해서 답변 줌 → 그 결과를 에디터 창에 표시
-- 즉 "AI를 똑똑한 백엔드로 소비하는" 구조
-- 공고 항목 중 **"AI API 기반 서비스 제작 경험"**에 정확히 해당 → 이건 이미 충족된 상태
-- **질문 준비**: "이 퍼즐 게임 미션 데이터 JSON 파일 좀 분석해서 밸런스가 맞는지 검수해 줘."
-- **API 호출**: 작성한 질문을 Anthropic 서버(`https://api.anthropic.com/v1/messages`)로 전송
-- **응답 수신**: Anthropic의 AI(Claude)가 답변을 작성해서 보내주면, C# 코드가 그 답변(JSON)을 읽어와 게임 내에서 활용
-
-### Anthropic
-
-- 클로드 만든 AI 회사
-
-### API
-
-- 프로그램끼리 서로 대화할 수 있게 연결해주는 창구(창구 주소)
-- C# 코드가 직접 AI에게 질문을 보내고 답변을 받아올 수 있게 해주는 통로
 
 ---
 
@@ -196,8 +179,7 @@ StringContent content = new StringContent(json, Encoding.UTF8, "application/json
 
 ```csharp
 // 편지 뼈대 생성
-HttpRequestMessage request = new HttpRequestMessage(
-															HttpMethod.Post, "https://api.anthropic.com/v1/messages");
+HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "https://api.anthropic.com/v1/messages");
 // 헤더 영역에 정보 추가
 // API 인증 키 추가
 request.Headers.Add("x-api-key", apiKey);
