@@ -4,7 +4,7 @@ import httpx2
 from mcp.server import MCPServer
 
 # Initialize MCPServer
-mcp = MCPServer("weather")
+mcp = MCPServer("mcp-weather-server")
 
 # Constants
 NWS_API_BASE = "https://api.weather.gov"

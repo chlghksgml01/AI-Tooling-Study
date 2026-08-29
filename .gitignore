@@ -1,3 +1,20 @@
-0*.md
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 가상환경
+.venv/
+venv/
+
+# 환경변수 / 시크릿
+.env
+
+# Claude Code
 .claude
+
+# Windows 바로가기
 *.lnk
+
+# 개인 메모
+_private/
