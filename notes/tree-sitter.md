@@ -87,9 +87,11 @@ print(root_node.type)  # 출력: compilation_unit
 
 ### 핵심 노드 개념과 탐색 메서드
 - 노드: 트리를 구성하는 모든 단위
+ - C# 파서에서는 클래스 전체가 하나의 커다란 노드
+ - 클래스를 구성하는 모든 요소(이름, 접근자, 메서드, 변수 등) 하나하나가 전부 개별 노드
 - `node.type`: 노드의 문법적 유형 나타내는 문자열(예: `class_declaration`, `indentifier`, `modifier`)
 - `node.named_children`: 주석, 쉼표, 세미콜론 같은 의미 없는 구문 기호를 제외하고 의미를 가진 자식 노드들만 배열로 반환
-- `node.child_by_field_name("name")`: 문법적으로 이름이 부여된 특정 자식을 직관적으로 가리킴
+- `node.child_by_field_name("name")`: 문법적으로 정해진 역할 이름(Fie ld Name)을 통해 원하는 자식 노드를 바로 찾아옴
 - `node.text.decode("utf-8")`: 해당 노드가 소스코드에서 차지하는 실제 텍스트 영역 슬라이싱하여 추출
 - `node.parent`: 현재 노드를 감싸고 있는 바로 위의 부모 노드로 역방향 탐색
 
@@ -103,7 +105,7 @@ print(root_node.type)  # 출력: compilation_unit
 - 단점: 원본 코드의 공백이나 괄호 위치 같은 세부 형태는 복원하기 어려움
 - 컴파일러 내부 연산용
 
-**CST(구체 구문 트리)**
+**CST(구체 구문 트리)** 
 - 구체적 이라는 이름처럼 코드의 모든 구체적인 요소 다 살아있음
 - 소스코드의 모든 글자(공백 제외), 중괄호, 세미콜론, 주석까지 100% 트리의 노드로 유지
 - 단점: 트리 노드가 너무 많아지고 구조 매우 복잡
@@ -121,19 +123,39 @@ print(root_node.type)  # 출력: compilation_unit
                                      └── "}" (punctuation)\
 ```
 
-### 주요 C# 노드 타입 예시
-
+### 주요 C# 노드 타입
 - C# 코드 파싱했을 때 구성되는 대표적인 노드 타입 구조
 
-| 노드 타입 (`node.type`) | 설명 | 필드 / 특징 예시 |
+| **구분** | **노드 타입 (c.type)** | **C# 코드 예시** | **설명** |
+| --- | --- | --- | --- |
+| **수식어** | `modifier` | `public`, `private`, `static`, `abstract` | 접근 제어자 및 상태 키워드 |
+| **선언문** | `class_declaration` | `public class Player` | 클래스 선언 |
+|  | `interface_declaration` | `public interface IData` | 인터페이스 선언 |
+|  | `struct_declaration` | `public struct Point` | 구조체 선언 |
+|  | `enum_declaration` | `public enum State` | 열거형 선언 |
+|  | `method_declaration` | `void Move()` | 메서드/함수 선언 |
+|  | `field_declaration` | `private int hp;` | 변수/필드 선언 |
+|  | `property_declaration` | `public int Hp { get; set; }` | 프로퍼티 선언 |
+| **타입/식별자** | `identifier` | `Player`, `Move`, `myVar` | 클래스·메서드·변수의 이름 |
+|  | `predefined_type` | `int`, `float`, `string`, `void` | C# 기본 데이터 타입 |
+| **기타** | `comment` | `// 주석` 또는 `/* 주석 */` | 코드 주석 |
+
+### 필드 이름
+
+| **필드 이름 (field_name)** | **가리키는 대상** | **C# 코드 적용 예시** |
 | --- | --- | --- |
-| **`class_declaration`** | `class` 선언 전체 블록 | `name` 필드로 클래스명 지정, `body` 필드로 `{}` 내부 지정 |
-| **`base_list`** | 상속받는 클래스/인터페이스 목록 (`: Mono, IPointer`) | 별도의 필드명이 제공되지 않음. 자식 노드들을 순회(`children`)하여 탐색해야 함 |
-| **`declaration_list`** | 클래스나 구조체 내부의 본문 영역 (`{ ... }`) | 메서드, 필드, 프로퍼티 선언 노드들을 포함 |
-| **`modifier`** | 접근 제어자 및 형태 수식어 | `public`, `private`, `static`, `override`, `sealed` 등 |
-| **`method_declaration`** | 메서드 선언 블록 | `type`(반환타입), `name`(메서드명), `parameters`(매개변수) 필드 제공 |
+| **`"name"`** | 선언문의 식별자 이름 | `class` `Player` `void` `Move()` |
+| **`"type"`** | 변수·필드·프로퍼티의 데이터 타입 | `int` `hp;` |
+| **`"return_type"`** | 메서드의 반환 타입 | `void` `Move()` `int` `GetHp()` |
+| **`"parameters"`** | 메서드 매개변수 목록 | `void Attack(int damage, float speed)` |
+| **`"body"`** | 클래스·메서드 내부 구현 블록 | `{ ... }` |
+| **`"bases"`** | 상속받는 부모 클래스 및 인터페이스 목록 | `class Player` `: MonoBehaviour, IDamageable` |
+| **`"value"`** | 변수나 필드에 할당된 초기 값 | `int hp =` `100;` |
 
 ### 함수
 
 **`field_name_for_chil(i)`**
 - 부모 노드의 `i`번째 자식이 해당 문법 구조에서 어떤 역할(필드 이름)을 하는지 알려주는 함수
+
+### parse()
+- 입력된 소스 코드(바이트 데이터)를 구문 분석하여 AST를 생성하는 핵심 메서드

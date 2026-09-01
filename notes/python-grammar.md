@@ -392,7 +392,7 @@ print(get_season_code("summer"))  # 출력: 2
 
 ---
 
-## 함수
+## 함수 사용법
 
 - 기본 함수 정의: `def`
 - 반환값: `->`
@@ -451,6 +451,80 @@ print(minimum, maximum)  # 출력: 5 40
 add_lambda = lambda a, b: a + b
 print(add_lambda(3, 5))  # 출력: 8
 ```
+
+### self를 첫 인자로 가지는 경우
+- 클래스로부터 생성된 객체의 상태나 속성에 접근하거나 변경해야할 때
+
+```python
+class Player:
+    def __init__(self, name):
+        self.name = name  # 인스턴스 변수 설정
+
+    # 인스턴스 변수(self.name)를 사용하므로 self가 필수입니다.
+    def show_info(self):
+        print(f"Player: {self.name}")
+
+    # 인스턴스 변수를 수정하므로 self가 필수입니다.
+    def change_name(self, new_name):
+        self.name = new_name
+```
+### yield
+- 값을 일시 정지하며 하나씩 반환하는 키워드
+```python
+def count_up():
+    print("첫 번째 숫자")
+    yield 1
+    print("두 번째 숫자")
+    yield 2
+
+for number in count_up():
+    print(f"받은 값: {number}\n")
+```
+1. for문 시작: `count_up()` 제너레이터가 생성되고 실행
+2. `print("첫 번째 숫자")` 출력, `yield 1` 만나 숫자 1을 반환한 뒤 함수가 그 자리에서 일시 정지
+3. for문 내부로 들어와 `received_number`에 1이 들어가고 `print("받은 값: 1")` 실행
+4. 다음 반복: for문이 다음 값 요구하면 아까 멈췄던 `yield 1` 다음 줄부터 다시 시작
+5. `print("두 번째 숫자")` 출력 , `yield 2` 만나 숫자 2를 반환한 뒤 다시 일시 정지
+6. for문 내부에서 `print("받은 값: 2")` 실행
+7. 더 이상 yield할 값이 없으므로 제너레이터 종료되고 for문 종료
+```Plaintext
+첫 번째 숫자
+1
+두 번째 숫자
+2
+```
+### yield from
+- 다른 제너레이터(또는 반복 가능한 객체)에게 작업 위임하여 그 내부의 값들을 하나씩 꺼내 반환
+```python
+def sub_generator():
+    yield 4
+    yield 5
+
+# yield 사용시
+def main_generator_yield():
+    yield 1
+    yield 2
+    yield 3
+    # 다른 제너레이터의 값을 하나씩 가져오려면 for문이 필요함
+    for item in sub_generator():
+        yield item
+
+# from yield 사용시
+def main_generator_fromyield():
+    yield 1
+    yield 2
+    yield 3
+    # sub_generator() 내부의 yield 값들을 알아서 순서대로 밖으로 꺼내줌
+    yield from sub_generator()
+
+for num in main_generator_yield():
+    print(num)  # 출력: 1, 2, 3, 4, 5
+
+for num in main_generator_fromyield():
+    print(num)  # 출력: 1, 2, 3, 4, 5
+```
+- yield: 값 하나를 밖으로 꺼낼 때 사용
+- yield from: 여러 값이 들어있는 그룹/보따리(반복 가능한 객체, 제너레이터)를 풀어서 속 알맹이들을 하나씩 연달아 꺼낼 때 사용
 
 ---
 
@@ -852,7 +926,7 @@ print(clean_email)  # "user@example.com"
 | **객체 표현 (`repr`)** | `{값!r}` | `f"{'hello'!r}"` | `'hello'` | 따옴표 및 이스케이프 문자(`\n` 등)를 그대로 표시 |
 | **날짜/시간** | `{dt:%Y-%m-%d}` | `f"{now:%Y-%m-%d}"` | `2026-08-31` | `datetime` 객체의 출력을 서식화 |
 
-### enumerate
+### enumerate()
 - 순회 가능한 객체(리스트, 튜플 등)을 입력받아 몇 번째 데이터인지 나타내는 순번(인덱스)과 실제 데이터 값을 `(인덱스, 값)` 형태의 2개짜리 묶음(튜플)로 짝지어 반환해주는 파이썬 내장 함수
 ```python
 fruits = ["사과", "바나나", "포도"]
@@ -869,6 +943,23 @@ print(fruit_dict) # 출력: {0: '사과', 1: '바나나', 2: '포도'}
 for i, word in enumerate(words):
     if i % 2 == 0:
         print(f"{i}번 위치: {word}")
+```
+
+### decode()
+- 바이트 형태의 데이터를 사람이 읽을 수 있는 문자열로 변환
+```py
+bytes.decode(encoding='utf-8', errors='strict')
+```
+
+### next
+- 반복 가능한 객체(iterator)에서 다음 요소를 하나씩 꺼내오는 역할
+```python
+numbers = [1, 2, 3]
+iterator = iter(numbers)
+
+print(next(iterator))  # 1
+print(next(iterator))  # 2
+print(next(iterator))  # 3
 ```
 
 ---
