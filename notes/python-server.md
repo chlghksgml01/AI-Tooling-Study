@@ -56,7 +56,7 @@ requests.get(url, params=None, headers=None, timeout=None, **kwargs)
     @mcp.tool()
     async def get_alerts(state: str) -> str:
         """Get weather alerts for a US state.  <-- 1. AI가 읽는 '도구 설명'
-    
+    ㅇㄹㅇㄹㄹ
         Args:
             state: Two-letter US state code   <-- 2. AI가 읽는 '파라미터 입력 규칙'
         """

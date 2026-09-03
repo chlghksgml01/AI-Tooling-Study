@@ -1087,7 +1087,21 @@ print(_GENERIC) # 출력: {60: 126, 62: 126}
 print(result) # List~int~
 ```
 
+### __name()__
+- 파이썬은 파일을 실행할 때 모든 파일마다 `__name__`이라는 특별한 내부 변수 만들고 거기에 파일의 이름 정보를 자동으로 집어 넣음
+- 이때 조건에 따라 들어가는 값이 달라짐
+1. 터미널이나 VS Code에서 이 파일을 직접 실행한 결루(`python my_script.py`)
+    - 파이썬은 이 파일이 시작점임을 알고 `__name__` 변수에 `__main__` 이라는 글자 넣어줌
+2. 다른 파이썬 파일에서 `import my_script` 로 불러온 경우
+    - 파이썬은 `__name__` 변수에 파일 이름인 `"my_script"`를 넣어줌
+- 파이썬 파일(py)이 쓰이는 방법은 두 가지임
+    - 직접 실행: `uv urn python server.py`
+    - import(다른 파일에서 불러다 쓰기) `from generateclassdiagram import server`
+- 파일썬은 파일을 불러오기(import)만 해도 코드를 위에서 아래로 한 줄씩 읽고 실행 → 이 떄 __name__ 사용
 
+### raise
+- 개발자가 의도적으로 예외(에러) 발생시키는 키워드
+- 정상적인 계산 결과 전달할 때는 `return` 사용, 잘못된 값이 입력되는 등 정상적인 진행 불가능할 경우 `raise`
 ---
 ## 라이브러리
 ### re
