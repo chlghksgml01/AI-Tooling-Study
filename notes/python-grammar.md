@@ -29,7 +29,29 @@ from typing import Any
 
 ### 튜플
 - 여러 개의 데이터를 하나로 묶어서 관리하는 수정 불가한 리스트
+- 소괄호 사용해서 생성
+```py
+# 튜플 생성
+numbers = (1, 2, 3)
+fruits = ("apple", "banana", "cherry")
 
+# 인덱스를 통한 접근
+print(fruits[0])  # 결과: apple
+
+# 패킹 (괄호 생략 가능)
+point = 10, 20
+
+# 언패킹 (각 변수에 값 할당)F
+x, y = point
+print(x)  # 결과: 10
+print(y)  # 결과: 20
+
+# 1순위(첫 번째 요소)가 다르면 2순위는 상관없이 결정
+("AAA", "Zebra") < ("BBB", "Apple") # True("AAA"가 "BBB"보다 앞에 오므로)
+
+# 1순위가 완벽히 같을 때만 2순위(두 번째 요소) 비
+("AAA", "Apple") < ("AAA", "Banana") # True(1순위가 같으니 "Apple"과 "Banana" 비교)
+```
 ---
 
 ## 연산자
@@ -89,6 +111,8 @@ print(A ^ B)  # {1, 2, 4, 5} (대칭차집합: 안 겹치는 것만)
 ---
 
 ## 구분자
+### 소괄호`()`
+- 튜플 생성 / 제너리이터 표현식 만들 때 사용
 
 ### 중괄호`{}`
 
@@ -390,6 +414,31 @@ print(get_season_code("summer"))  # 출력: 2
 | **삭제** | `del player["is_active"]` | 해당 Key-Value 쌍 삭제 |
 | **Key 존재 확인** | `"name" in player` | 해당 Key가 존재하는지 `True`/`False` 반환 |
 
+**fromkeys()**
+- 시퀀스(리스트, 튜플 등)의 요소들을 딕셔너리의 키로 변환하여 새로운 딕셔너리를 생성하는 메서드
+- 중복 제거에 자주 활용(set은 순서 보장되지 않지만 얜 시퀀스 순서 그대로 보장)
+- 기존 딕셔너리의 Value는 완전히 무시되고 Key들만 추출되어 새로운 기본값으로 채워짐
+```py
+dict.fromkeys(keys_iterable, default_value)
+```
+- keys_iterable (필수): 딕셔너리의 키로 사용할 순회 가능한(Iterable) 객체 (리스트, 튜플 등)
+- default_value (선택): 각 키에 할당할 기본 값 (지정하지 않으면 기본값은 None)
+```py
+# 값 미지정시 None 할당
+keys = ["a", "b", "c"]
+result = dict.fromkeys(keys)
+print(result) # 출력: {'a': None, 'b': None, 'c': None}
+
+# 값 지정
+keys = ["apple", "banana", "cherry"]
+result = dict.fromkeys(keys, 0)
+print(result)# 출력: {'apple': 0, 'banana': 0, 'cherry': 0}
+
+# set()을 쓸 경우: 순서가 보장되지 않음 (랜덤 변경)
+list(set(["B", "A", "B", "C"]))  # 결과 예시: ['A', 'C', 'B']
+# dict.fromkeys()를 쓸 경우: 처음 등장한 순서 그대로 유지
+list(dict.fromkeys(["B", "A", "B", "C"]))  # 결과: ['B', 'A', 'C']
+```
 ---
 
 ## 함수 사용법
@@ -636,6 +685,7 @@ class Example:
     # items: list[Field] = None 이렇게 할 경우 items에는 None이 들어가고
     # 이 상태에서 파싱한 필드를 추가하려고 append()를 호출하는 순간 터짐    
 ```
+- 딕셔너리를 list()로 감쌀 경우 key들만 뽑혀서 리스트로 변환
 
 ---
 ## 반복문
@@ -961,6 +1011,82 @@ print(next(iterator))  # 1
 print(next(iterator))  # 2
 print(next(iterator))  # 3
 ```
+
+### lambda
+```python
+lambda 매개변수: 리턴할_식
+```
+- `return` 쓰지 않아도 `:` 오른쪽 표현식의 결과 반환
+```py
+numbers = [-5, 2, -1, 4, -3]
+
+# lambda 없이 그냥 정렬할 때
+print(sorted(numbers))
+# 결과: [-5, -3, -1, 2, 4]  (작은 숫자 순서)
+
+# lambda를 사용해서 '절대값(abs)' 기준으로 정렬할 때
+print(sorted(numbers, key=lambda x: abs(x)))
+# 결과: [-1, 2, -3, 4, -5]  (부호 떼고 숫자 크기 순서)
+```
+
+### sorted
+- 데이터 집합을 순서대로 정렬하여 새로운 리스트로 만들어 반환해 주는 내장 함수
+```py
+numbers = [4, 1, 3, 2]
+
+# 1. 기본 정렬 (오름차순)
+result1 = sorted(numbers)
+print(result1)  # [1, 2, 3, 4]
+print(numbers)  # [4, 1, 3, 2] (원본은 변하지 않음)
+
+# 2. 내림차순 정렬 (reverse=True)
+result2 = sorted(numbers, reverse = True)
+print(result2)  # [4, 3, 2, 1]
+
+# 3. 함수나 lambda를 넣어 원하는 기준대로 정렬
+words = ["banana", "apple", "kiwi"]
+
+# 글자 수(len)를 기준으로 정렬
+by_length = sorted(words, key = len)
+print(by_length)  # ['kiwi', 'apple', 'banana'] (4자 -> 5자 -> 6자)
+```
+### len
+- 글자 수(길이) 세어주는 함수
+```py
+words = ["banana", "apple", "kiwi"]
+print(len(words[0])) # 6
+print(len(words[1])) # 5
+print(len(words[2])) # 4
+```
+### 문자열 바꾸기
+**maketrans()**
+- 문자를 어떻게 바꿀지 적어두는 암포효(변환 기준표)를 만드는 함수
+- key, value 모두 유니코드 정수로 변환된 딕셔너리로 반환
+**translate()**
+- maketrans로 만든 변환표를 바탕으로 실제 문자열 싹 바꿔주는 함수
+```py
+# 1. 문자를 다른 문자로 1:1 교체
+# 'o' -> '0', 'e' -> '3'으로 바꾸는 변환표
+# table1, table2는 완전히 똑같이 동작
+table1 = str.maketrans("oe", "03")
+table2 = str.maketrans({"o" : "0", "e" : "3"})
+text = "hello world"
+print(text.translate(table1))  # h3ll0 w0rld
+
+# 2. 특정 문자 아예 삭제
+# 첫 번째, 두 번째 인자는 빈 문자열("")로 두고, 3번째에 삭제할 특수문자 입력
+table = str.maketrans("", "", "!,?")
+text = "Hello, World! How are you?"
+print(text.translate(table))  # Hello World How are you
+
+# 3. 딕셔너리 반환
+original = "List<int>"
+_GENERIC = str.maketrans({"<": "~", ">": "~"})
+result = original.translate(_GENERIC)
+print(_GENERIC) # 출력: {60: 126, 62: 126}
+print(result) # List~int~
+```
+
 
 ---
 ## 라이브러리
