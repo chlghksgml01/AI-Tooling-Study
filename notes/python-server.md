@@ -76,3 +76,6 @@ if __name__ == "__main__":
 
 - `transport="stdio"` : 로컬 표준입출력으로 통신. 클라이언트가 이 스크립트를 자식 프로세스로 실행함
 - stdio 방식에서는 `print()` 금지 → stdout 은 JSON-RPC 전용이라 일반 텍스트가 섞이면 통신이 깨짐. 로그는 `logging`(stderr) 사용
+
+### ToolError
+- MCP 전용 예외

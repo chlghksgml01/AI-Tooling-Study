@@ -1102,8 +1102,14 @@ print(result) # List~int~
 ### raise
 - 개발자가 의도적으로 예외(에러) 발생시키는 키워드
 - 정상적인 계산 결과 전달할 때는 `return` 사용, 잘못된 값이 입력되는 등 정상적인 진행 불가능할 경우 `raise`
+
+### expanduser()
+- 물결표(`~`) 단축 기호를 사용자의 홈 디렉토리 실제 경로로 확장
+- 윈도우: `~/Projects` → `C:\Users\최환희\Projects`
+- 리눅스/Mac: `~/Projects` → `/home/username/Projects`
+
 ---
-## 라이브러리
+## 라이브러리 / 모듈
 ### re
 - 정규 표현식을 다루기 위한 표준 라이브러리
 ```python
@@ -1281,11 +1287,49 @@ for file in Path(".").rglob("*.py"):
 new_name_path = p.with_name("new_sample.txt")  # 파일명 변경 경로
 new_ext_path = p.with_suffix(".csv")            # 확장자 변경 경로
 
-# 절대 경로 전환
-abs_path = p.resolve()  # 상대 경로를 절대 경로로 변환
+# 상대 경로를 절대 경로 전환
+# 심볼릭 링크를 실제 원본 링크로 추적
+#   - 심볼릭 링크: 바로가기같은 특정 폴더나 파일을 가리키는 가상의 연결고리(포인터)
+abs_path = p.resolve()
 
 # 파일 이동/이름 변경 및 삭제
 # p_txt.rename("new_test.txt")    # 파일 이름 변경 또는 이동
 p_txt.unlink(missing_ok=True)     # 파일 삭제 (없어도 에러 안 남)
 # dir_path.rmdir()                # 빈 디렉토리 삭제
 ```
+
+### os
+- 파이썬 프로그램이 실행되고 있는 컴퓨터의 운영체제와 상호작용할 수 있도록 도와주는 모듈
+
+**1. 경로 및 파일/디렉터리 존재 확인**
+- `os.path.exists(path)`: 해당 경로에 파일이나 디렉터리가 실제로 존재하는지 확인(`True`/`False` 반환)
+- `os.path.isfile(path)`: 지정한 경로가 파일인지 확인
+- `os.path.isdir(path)`: 지정한 경로가 디렉터리(폴더)인지 확인
+- `os.path.isabs(path)`: 경로가 절대 경로인지 확인
+
+**2. 경로 조작 및 변환 (`os.path`)**
+- `os.path.join(path1, path2, ...)`: 운영체제에 맞는 구분자(`\` 또는 `/`)를 자동으로 삽입하여 여러 경로를 하나의 경로 문자열로 안전하게 결합
+- `os.path.abspath(path)`: 상대 경로를 절대 경로로 변환
+- `os.path.dirname(path)`: 경로에서 디렉터리 이름(상위 폴더 경로)만 추출
+- `os.path.basename(path)`: 경로에서 파일명(또는 가장 마지막 디렉터리명)만 추출
+- `os.path.splitext(path)`: 경로를 [파일 경로]와 [확장자]의 튜플로 분리(예: `("file", ".txt")`)
+
+**3. 디렉터리 및 파일 제어**
+
+- `os.getcwd()`: 현재 작업 디렉터리(Current Working Directory)의 경로를 문자열로 반환
+- `os.chdir(path)`: 현재 작업 디렉터리를 지정한 경로로 변경
+- `os.listdir(path)`: 지정한 디렉터리 안에 있는 모든 파일 및 폴더 이름의 목록(리스트) 반환
+- `os.mkdir(path)`: 새 디렉터리 생성(상위 폴더가 없으면 에러 발생)
+- `os.makedirs(path, exist_ok=True)`: 중간 경로의 상위 디렉터리까지 포함하여 중첩된 폴더 생성, `exist_ok=True`를 주면 이미 폴더가 있어도 에러 내지 않음
+- `os.remove(path)` / `os.unlink(path)`: 특정 파일 삭제
+- `os.rmdir(path)`: 비어 있는 디렉터리 삭제
+- `os.rename(src, dst)`: 파일이나 디렉터리의 이름/위치 변경
+- `os.walk(top)`: 하위 디렉터리를 순회하며 모든 폴더와 파일 목록을 탐색할 수 있는 제너레이터 반환
+
+**4. 시스템 및 환경 변수**
+
+- `os.environ`: 시스템 환경 변수들이 들어있는 사전(Dictionary) 형태의 객체
+    - `os.environ.get("KEY")`: 지정한 환경 변수 값을 안전하게 읽어옴
+- `os.pathsep`: 환경 변수 내 경로 구분 기호(Windows: `;`, Linux/Mac: `:`)
+- `os.sep`: 시스템 파일 경로 구분 기호(Windows: `\`, Linux/Mac: `/`)
+- `os.system(command)`: 운영체제의 명령어(CLI 커맨드) 실행
