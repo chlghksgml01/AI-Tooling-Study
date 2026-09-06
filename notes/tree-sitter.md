@@ -159,3 +159,24 @@ print(root_node.type)  # 출력: compilation_unit
 
 ### parse()
 - 입력된 소스 코드(바이트 데이터)를 구문 분석하여 AST를 생성하는 핵심 메서드
+
+### type 종류
+| 카테고리 | 노드 타입 (`node.type`) | 설명 | C# 예시 |
+| --- | --- | --- | --- |
+| **선언 (Declarations)** | `class_declaration` | 클래스 선언 | `class Player { }` |
+|  | `interface_declaration` | 인터페이스 선언 | `interface IAttackable { }` |
+|  | `struct_declaration` | 구조체 선언 | `struct Vector2 { }` |
+|  | `enum_declaration` | 열거형 선언 | `enum GameState { }` |
+| **멤버 (Members)** | `field_declaration` | 필드(변수) 선언 한 줄 | `private int hp;` |
+|  | `property_declaration` | 프로퍼티 선언 | `public int Hp { get; set; }` |
+|  | `method_declaration` | 메서드 선언 | `void TakeDamage(int damage) { }` |
+|  | `constructor_declaration` | 생성자 선언 | `public Player() { }` |
+| **변수 구문 (Variables)** | `variable_declaration` | 타입 + 변수 목록 그룹 | `int a = 1, b = 2;` 전체 |
+|  | `variable_declarator` | 개별 변수 단위 (이름/초깃값) | `a = 1` 또는 `b = 2` |
+| **접근자 및 표식** | `accessor_list` | 프로퍼티 접근자 블록 | `{ get; set; }` |
+|  | `accessor_declaration` | 개별 접근자 선언 | `get;` 또는 `set;` / `init;` |
+|  | `arrow_expression_clause` | 식 본문(람다식 형태) 표현 | `=> _hp;` |
+|  | `modifier` | 수식어/키워드 | `public`, `static`, `readonly` |
+| **기타 하위 노드** | `base_list` | 상속받는 부모/인터페이스 목록 | `: MonoBehaviour, IDamageable` |
+|  | `predefined_type` | C# 기본 데이터 타입 | `int`, `string`, `bool`, `float` |
+|  | `identifier` | 사용자 정의 식별자(이름) | `Player`, `CustomData` |

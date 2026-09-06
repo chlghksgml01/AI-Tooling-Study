@@ -79,9 +79,40 @@
 | **인증/보안** | 로컬 OS 권한에 의존 (비교적 간단) | API Key, OAuth, Bearer 토큰 등 네트워크 보안 필수 |
 | **주요 사용 사례** | CLI 도구, 로컬 파일/DB 접근, 개발용 툴 | SaaS 연동, 중앙 집중형 API, 여럿이 공유하는 서버 |
 
+### MCP 서버 개발 및 연동 흐름
+1. 실제 로직 함수 작성
+    - 실제 일 수행하는 python 함수 작성
+2. MCP Tool로 등록(`@mcp.tool()`)
+    - 작성한 함수를 Claude가 알아보고 호출할 수 있도록 @mcp.tool() 데코레이터를 붙이고 Claude가 언제 이 도구를 써야할지 알 수 있게 docstring과 파라미터 타입 적어두기
+3. MCP 서버 연동 등록(`claude mcp add`)
+    - `claude mcp add` 명령어로 Claude Code가 이 서버 프로그램(자식 프로세스)을 필요할 때 자동으로 켜서 stdio로 통신할 수 있도록 등록
+
 ### Tools 동작 구조(호출 흐름 Discovery → Invocation)
 - Discovery: 클라이언트가 서버에 `tools/list`(또는 `resources/list`, `prompts/list`)를 요청해 현재 사용 가능한 도구/자원/프롬프트 목록과 파라미터 스키마를 조회
     - 클라이언트가 목록을 미리 하드코딩해두는 게 아니라 연결될 때마다 서버에게 직접 물어봐서 동적으로 알아냄
 - Invocation: LLM이 사용자 요청을 보고 어떤 도구가 필요한지 판단하면 클라이언트가 `tools/call`로 도구 이름 + 파라미터를 담아 서버에 실행 요청
 - Result: 서버가 실제 로직(API 호출, DB 조회 등)을 수행한 뒤 결과를 content(text/image 등) 형태로 응답 → 클라이언트가 이를 LLM에게 다시 전달해 최종 답변 생성에 활용
 - ps. Discovery, Invocation: 분산 시스템, RPC 등에서 사용되는 일반적인 패턴 용어
+
+### MCP Inspector
+- Inspector가 부모 프로세스가 되고 개발자가 작성한 MCP 서버가 자식 프로세스로 구동되어 두 프로세스가 표준 입출력(stdio)을 통해 통신하는 중첩 구조로 동작
+- `uv run mcp dev 파일경로:mcp`로 실행
+    - `uv run`: 프로젝트의 가상환경 감지하거나 생성한 후 지정한 명령어 실행
+    - `mcp dev`: Inspector를 띄우기 위해 필요한 진짜 서버 구동 명령어를 내부적으로 조합해 Inspector의 입력값으로 전달해 주는 CLI 도구
+    - `파일경로`: 실행할 Python 파일의 위치(예: main.py, server.py, 또는 src/my_server.py)
+    - `mcp`: 파일 내에서 정의된 FastMCP 또는 MCP 서버 인스턴스 변수명(예: `mcp = FastMCP("My Server")`)
+- 주의사항 내부적으로 `npx`를 통해 Inspector를 구동하므로 시스템에 `Node.js(npx)` 환경이 필수적으로 설치되어 있어야 함
+    - `Node.js`: 자바스크립트를 브라우저 밖(컴퓨터 환경)에서 실행할 수 있게 해주는 런타임 환경
+        원래 자바스크립트는 웹 브라우저 안에서만 움직이는 언어였음
+    - `npx`: Node.js 패키지 관리 도구인 npm에 포함된 패키지 실행 도구
+
+## scope
+- claude mcp add 로 서버 등록하면 그 정보(이름, 실행 명령, 환경변수)가 JSON 설정 파일에 저장
+- Claude Code는 설정 파일을 여러 개 두고 이 등록을 어느 범위에서 쓸거냐 에 따라 저장되는 파일이 달라지고 그 범위 선택이 scope
+- `--scope <값>` 옵션으로 지정하고 3가지가 있음
+    | scope | 저장 파일 | 적용 범위 | 언제 사용하는지 |
+    | --- | --- | --- | --- |
+    | `local` (기본값) | `~/.claude.json` 안의 이 프로젝트 전용 칸 | 이 PC + 내 계정 + 이 프로젝트에서만 | 나 혼자 이 프로젝트에서 잠깐 쓸 때, 실험용 |
+    | `project` | 프로젝트 폴더의 `.mcp.json` | 이 프로젝트를 여는 누구나 (git으로 공유됨) | 팀/포트폴리오처럼 "이 프로젝트엔 이 서버가 필요하다"를 명시하고 싶을 때 |
+    | `user` | `~/.claude.json` 전역 칸 | 이 PC + 내 계정 + 모든 프로젝트 | 어느 프로젝트에서든 늘 쓰는 범용 툴 (예: GitHub, 파일 검색 서버) |
+- 같은 이름이 여러 scope에 있으면 local > project > user 순으로 이김
